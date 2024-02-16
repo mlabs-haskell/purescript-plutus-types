@@ -14,16 +14,21 @@ to generate this file without the comments in this block.
 , dependencies =
   [ "aeson"
   , "argonaut-codecs"
+  , "arrays"
   , "bifunctors"
+  , "bytearrays"
   , "cardano-plutus-data-schema"
   , "cardano-types"
   , "console"
   , "effect"
   , "either"
+  , "gen"
   , "js-bigints"
   , "maybe"
   , "newtype"
+  , "partial"
   , "prelude"
+  , "quickcheck"
   , "tuples"
   ]
 , packages = ./packages.dhall
