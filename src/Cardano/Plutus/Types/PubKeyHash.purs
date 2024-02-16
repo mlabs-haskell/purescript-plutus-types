@@ -4,12 +4,18 @@ module Cardano.Plutus.Types.PubKeyHash
 
 import Prelude
 
-import Aeson (class DecodeAeson, class EncodeAeson, decodeAeson, encodeAeson, (.:))
+import Aeson
+  ( class DecodeAeson
+  , class EncodeAeson
+  , decodeAeson
+  , encodeAeson
+  , (.:)
+  )
 import Cardano.FromData (class FromData)
 import Cardano.FromMetadata (class FromMetadata)
 import Cardano.ToData (class ToData)
 import Cardano.ToMetadata (class ToMetadata)
-import Cardano.Types.Ed25519KeyHash (Ed25519KeyHash(..))
+import Cardano.Types.Ed25519KeyHash (Ed25519KeyHash)
 import Data.Generic.Rep (class Generic)
 import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Show.Generic (genericShow)
