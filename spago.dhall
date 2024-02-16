@@ -11,7 +11,18 @@ When creating a new Spago project, you can use
 to generate this file without the comments in this block.
 -}
 { name = "my-project"
-, dependencies = [ "console", "effect", "prelude" ]
+, dependencies =
+  [ "aeson"
+  , "bifunctors"
+  , "cardano-plutus-data-schema"
+  , "cardano-types"
+  , "console"
+  , "effect"
+  , "either"
+  , "newtype"
+  , "prelude"
+  , "tuples"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
