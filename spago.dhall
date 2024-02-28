@@ -27,14 +27,12 @@ to generate this file without the comments in this block.
   , "js-bigints"
   , "lattice"
   , "maybe"
-  , "monad-logger"
   , "newtype"
   , "partial"
   , "prelude"
   , "quickcheck"
   , "these"
   , "tuples"
-  , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

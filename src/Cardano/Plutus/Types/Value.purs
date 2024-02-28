@@ -27,11 +27,29 @@ module Cardano.Plutus.Types.Value
 
 import Prelude hiding (eq)
 
-import Aeson (class DecodeAeson, class EncodeAeson, JsonDecodeError(TypeMismatch), caseAesonObject, decodeAeson, encodeAeson, getField)
+import Aeson
+  ( class DecodeAeson
+  , class EncodeAeson
+  , JsonDecodeError(TypeMismatch)
+  , caseAesonObject
+  , decodeAeson
+  , encodeAeson
+  , getField
+  )
 import Cardano.FromData (class FromData)
-import Cardano.Plutus.Types.CurrencySymbol (CurrencySymbol, adaSymbol, mkCurrencySymbol)
+import Cardano.Plutus.Types.CurrencySymbol
+  ( CurrencySymbol
+  , adaSymbol
+  , mkCurrencySymbol
+  )
 import Cardano.Plutus.Types.Map (Map(Map)) as Plutus
-import Cardano.Plutus.Types.Map (keys, lookup, mapThese, singleton, union) as Plutus.Map
+import Cardano.Plutus.Types.Map
+  ( keys
+  , lookup
+  , mapThese
+  , singleton
+  , union
+  ) as Plutus.Map
 import Cardano.Plutus.Types.TokenName (TokenName, adaToken)
 import Cardano.ToData (class ToData)
 import Control.Apply (lift3)
@@ -41,8 +59,7 @@ import Data.Either (Either(Left))
 import Data.Foldable (all, fold)
 import Data.Generic.Rep (class Generic)
 import Data.Lattice (class JoinSemilattice, class MeetSemilattice)
-import Data.Log.Tag (TagSet)
-import Data.Maybe (Maybe(Nothing), fromJust, fromMaybe)
+import Data.Maybe (Maybe(Nothing), fromMaybe)
 import Data.Newtype (class Newtype)
 import Data.Ord (abs)
 import Data.Show.Generic (genericShow)
@@ -52,7 +69,6 @@ import Data.Tuple (fst)
 import Data.Tuple.Nested (type (/\), (/\))
 import JS.BigInt (BigInt)
 import JS.BigInt as BigInt
-import Partial.Unsafe (unsafePartial)
 import Test.QuickCheck.Arbitrary (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (Gen, chooseInt)
 
