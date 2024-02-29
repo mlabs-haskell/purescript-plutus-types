@@ -5,6 +5,7 @@ module Cardano.Plutus.Types.CurrencySymbol
   , fromMintingPolicyHash
   , fromScriptHash
   , unCurrencySymbol
+  , pprintCurrencySymbol
   ) where
 
 import Prelude
@@ -29,7 +30,7 @@ import Cardano.ToMetadata (class ToMetadata)
 import Cardano.Types.ScriptHash (ScriptHash)
 import Control.Monad.Gen as Gen
 import Data.Array.NonEmpty (fromArray)
-import Data.ByteArray (ByteArray, hexToByteArrayUnsafe)
+import Data.ByteArray (ByteArray, byteArrayToHex, hexToByteArrayUnsafe)
 import Data.Either (Either(Left))
 import Data.Maybe (Maybe, fromJust)
 import Data.Newtype (unwrap, wrap)
@@ -93,3 +94,8 @@ fromMintingPolicyHash (MintingPolicyHash h) = CurrencySymbol $ unwrap $ encodeCb
 
 unCurrencySymbol :: CurrencySymbol -> ByteArray
 unCurrencySymbol (CurrencySymbol curSymbol) = curSymbol
+
+pprintCurrencySymbol :: CurrencySymbol -> String
+pprintCurrencySymbol cs
+  | cs == adaSymbol = "Lovelace"
+  | otherwise = byteArrayToHex $ unCurrencySymbol cs

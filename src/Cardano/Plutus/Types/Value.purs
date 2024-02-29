@@ -23,6 +23,7 @@ module Cardano.Plutus.Types.Value
   , valueOf
   , valueToCoin
   , valueToCoin'
+  , pprintValue
   ) where
 
 import Prelude hiding (eq)
@@ -41,6 +42,7 @@ import Cardano.Plutus.Types.CurrencySymbol
   ( CurrencySymbol
   , adaSymbol
   , mkCurrencySymbol
+  , pprintCurrencySymbol
   )
 import Cardano.Plutus.Types.Map (Map(Map)) as Plutus
 import Cardano.Plutus.Types.Map
@@ -54,11 +56,13 @@ import Cardano.Plutus.Types.TokenName (TokenName, adaToken)
 import Cardano.ToData (class ToData)
 import Control.Apply (lift3)
 import Data.Array (concatMap, filter, replicate)
-import Data.ByteArray (ByteArray)
+import Data.ByteArray (ByteArray, byteArrayToHex)
 import Data.Either (Either(Left))
 import Data.Foldable (all, fold)
 import Data.Generic.Rep (class Generic)
 import Data.Lattice (class JoinSemilattice, class MeetSemilattice)
+import Data.Log.Tag (TagSet, tag)
+import Data.Log.Tag as TagSet
 import Data.Maybe (Maybe(Nothing), fromMaybe)
 import Data.Newtype (class Newtype)
 import Data.Ord (abs)
@@ -296,3 +300,12 @@ checkPred f l r = all (all f) (unionVal l r)
 -- supplying 0 where a key is only present in one of them.
 checkBinRel :: (BigInt -> BigInt -> Boolean) -> Value -> Value -> Boolean
 checkBinRel f l r = checkPred (these (flip f zero) (f zero) f) l r
+
+-- | Pretty-print a Plutus domain `Value`
+pprintValue :: Value -> TagSet
+pprintValue (Value (Plutus.Map arr)) = TagSet.fromArray $
+  arr <#> \(currency /\ Plutus.Map assets) ->
+    TagSet.tagSetTag (pprintCurrencySymbol currency)
+      $ TagSet.fromArray
+      $ assets <#> \(tokenName /\ amount) ->
+          byteArrayToHex tokenName `tag` BigInt.toString amount
