@@ -1,4 +1,4 @@
-module Test.Main (main) where
+module Test.Main (main, uniqueIndicesTests, tests) where
 
 import Prelude hiding (conj)
 
