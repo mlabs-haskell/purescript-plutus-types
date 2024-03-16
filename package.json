@@ -1,4 +1,5 @@
 {
+    "name": "purescript-plutus-types",
     "type": "module",
     "private": true,
     "scripts": {
