@@ -175,11 +175,11 @@ let
 
     "cardano-serialization-lib" = pkgs.stdenv.mkDerivation {
         name = "cardano-serialization-lib";
-        version = "640a429eb0e57c3bfc8de5e3fdafa86491df0e7c";
+        version = "c66afbb9c572db096690ec1dd786c9ec96105c0d";
         src = pkgs.fetchgit {
           url = "https://github.com/mlabs-haskell/purescript-cardano-serialization-lib";
-          rev = "640a429eb0e57c3bfc8de5e3fdafa86491df0e7c";
-          sha256 = "17xg5ggnx719ac2iyij5mpzcy4b7vxgx5qvb7515qhz1035lv6nm";
+          rev = "c66afbb9c572db096690ec1dd786c9ec96105c0d";
+          sha256 = "1pi5q45nx1varl2pjpd60vfxv2cjvlg1ms7xnsfwb2acl216lmr5";
         };
         phases = "installPhase";
         installPhase = "ln -s $src $out";
@@ -187,11 +187,11 @@ let
 
     "cardano-types" = pkgs.stdenv.mkDerivation {
         name = "cardano-types";
-        version = "db0ca1ee2cf6a2cbbe282d49a3bf9daa696ebdee";
+        version = "v1.0.1";
         src = pkgs.fetchgit {
           url = "https://github.com/mlabs-haskell/purescript-cardano-types";
-          rev = "db0ca1ee2cf6a2cbbe282d49a3bf9daa696ebdee";
-          sha256 = "05s41nsd7z1w7lf80753mdgvfvi7jl0jyc2jm7lyvchcbjgzsrzy";
+          rev = "715d4b2dcf8b29cb45001209ee562f758a513261";
+          sha256 = "1xcrdmpwd3qcdiyjfrj0z2dh56l4z1s97r25b6nhlqwmwz7qz19z";
         };
         phases = "installPhase";
         installPhase = "ln -s $src $out";
@@ -612,6 +612,18 @@ let
           url = "https://github.com/garyb/purescript-mote.git";
           rev = "3306aa32753cd345ca41b058b26584fe890ac895";
           sha256 = "11vwbvxylvyfghmz7616727vrq20qcmz7d61y9lyq550q0bkg0np";
+        };
+        phases = "installPhase";
+        installPhase = "ln -s $src $out";
+      };
+
+    "mote-testplan" = pkgs.stdenv.mkDerivation {
+        name = "mote-testplan";
+        version = "d1c93e08ef09f5427b460f396b89da7255f8af52";
+        src = pkgs.fetchgit {
+          url = "https://github.com/mlabs-haskell/purescript-mote-testplan";
+          rev = "d1c93e08ef09f5427b460f396b89da7255f8af52";
+          sha256 = "1317v612hq1hlw3m6vvzjfpg3vzm4pdlpix6z4z221cpgaga4i2r";
         };
         phases = "installPhase";
         installPhase = "ln -s $src $out";

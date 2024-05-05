@@ -186,7 +186,7 @@ let additions =
           ]
         , repo =
             "https://github.com/mlabs-haskell/purescript-cardano-serialization-lib"
-        , version = "640a429eb0e57c3bfc8de5e3fdafa86491df0e7c"
+        , version = "c66afbb9c572db096690ec1dd786c9ec96105c0d"
         }
       , cardano-plutus-data-schema =
         { dependencies = [ "prelude" ]
@@ -238,12 +238,31 @@ let additions =
           , "unsafe-coerce"
           ]
         , repo = "https://github.com/mlabs-haskell/purescript-cardano-types"
-        , version = "db0ca1ee2cf6a2cbbe282d49a3bf9daa696ebdee"
+        , version = "v1.0.1"
         }
       , js-bigints =
         { dependencies = [ "integers", "maybe", "prelude" ]
         , repo = "https://github.com/purescript-contrib/purescript-js-bigints"
         , version = "36a7d8ac75a7230043ae511f3145f9ed130954a9"
+        }
+      , mote-testplan =
+        { dependencies =
+          [ "aff"
+          , "console"
+          , "datetime"
+          , "effect"
+          , "foldable-traversable"
+          , "maybe"
+          , "mote"
+          , "newtype"
+          , "numbers"
+          , "ordered-collections"
+          , "prelude"
+          , "spec"
+          , "transformers"
+          ]
+        , repo = "https://github.com/mlabs-haskell/purescript-mote-testplan"
+        , version = "d1c93e08ef09f5427b460f396b89da7255f8af52"
         }
       }
 

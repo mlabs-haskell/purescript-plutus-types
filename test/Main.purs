@@ -23,7 +23,7 @@ import Cardano.Types.BigNum as BigNum
 import Cardano.Types.PlutusData (PlutusData(Constr, Integer))
 import Control.Lazy (fix)
 import Control.Monad.Error.Class (class MonadThrow)
-import Ctl.Internal.Test.TestPlanM (TestPlanM, interpret)
+import Mote.TestPlanM (TestPlanM, interpret)
 import Data.Array.NonEmpty (fromNonEmpty) as NEArray
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep as G

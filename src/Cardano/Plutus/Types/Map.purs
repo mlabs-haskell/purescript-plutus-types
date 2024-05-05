@@ -16,6 +16,8 @@ module Cardano.Plutus.Types.Map
   , union
   , unionWith
   , values
+  , fromCardano
+  , toCardano
   ) where
 
 import Prelude
@@ -27,11 +29,21 @@ import Aeson
   , decodeAeson
   , encodeAeson
   )
-import Cardano.Types.PlutusData (PlutusData(Map)) as PD
 import Cardano.FromData (class FromData, fromData)
 import Cardano.ToData (class ToData, toData)
-import Data.Array (any, deleteAt, filter, findIndex, mapMaybe, null, singleton) as Array
+import Cardano.Types.PlutusData (PlutusData(Map)) as PD
+import Control.Alternative (guard)
 import Data.Array ((:))
+import Data.Array
+  ( length
+  , any
+  , deleteAt
+  , filter
+  , findIndex
+  , mapMaybe
+  , null
+  , singleton
+  ) as Array
 import Data.Bifunctor (bimap, rmap)
 import Data.Bitraversable (rtraverse)
 import Data.Foldable
@@ -49,6 +61,7 @@ import Data.FoldableWithIndex
   )
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Generic.Rep (class Generic)
+import Data.Map as PS
 import Data.Maybe (Maybe(Just, Nothing), isJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
@@ -248,3 +261,14 @@ mapMaybeWithKey
   -> Map k b
 mapMaybeWithKey f (Map xs) =
   Map $ Array.mapMaybe (\(k /\ v) -> (k /\ _) <$> f k v) xs
+
+fromCardano :: forall k v. PS.Map k v -> Map k v
+fromCardano = PS.toUnfoldable >>> Map
+
+-- | Fails with `Nothing` if there are duplicates
+toCardano :: forall k v. Ord k => Map k v -> Maybe (PS.Map k v)
+toCardano (Map entries) = do
+  let mp = PS.fromFoldable entries
+  let size = PS.size mp
+  guard (size == Array.length entries)
+  pure mp

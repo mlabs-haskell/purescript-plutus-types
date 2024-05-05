@@ -1,11 +1,13 @@
 module Cardano.Plutus.Types.CurrencySymbol
-  ( CurrencySymbol
+  ( CurrencySymbol(CurrencySymbol)
   , adaSymbol
   , mkCurrencySymbol
   , fromMintingPolicyHash
   , fromScriptHash
   , unCurrencySymbol
   , pprintCurrencySymbol
+  , fromCardano
+  , toCardano
   ) where
 
 import Prelude
@@ -33,13 +35,14 @@ import Data.Array.NonEmpty (fromArray)
 import Data.ByteArray (ByteArray, byteArrayToHex, hexToByteArrayUnsafe)
 import Data.Either (Either(Left))
 import Data.Maybe (Maybe, fromJust)
-import Data.Newtype (unwrap, wrap)
+import Data.Newtype (class Newtype, unwrap, wrap)
 import Partial.Unsafe (unsafePartial)
 import Test.QuickCheck.Arbitrary (class Arbitrary)
 
 -- | https://github.com/IntersectMBO/plutus/blob/eceae8831b8186655535dee587486dbd3fd037f4/plutus-ledger-api/src/PlutusLedgerApi/V1/Value.hs#L88
 newtype CurrencySymbol = CurrencySymbol ByteArray
 
+derive instance Newtype CurrencySymbol _
 derive newtype instance Eq CurrencySymbol
 derive newtype instance Ord CurrencySymbol
 derive newtype instance FromData CurrencySymbol
@@ -99,3 +102,9 @@ pprintCurrencySymbol :: CurrencySymbol -> String
 pprintCurrencySymbol cs
   | cs == adaSymbol = "Lovelace"
   | otherwise = byteArrayToHex $ unCurrencySymbol cs
+
+toCardano :: CurrencySymbol -> Maybe ScriptHash
+toCardano (CurrencySymbol cs) = decodeCbor $ wrap cs
+
+fromCardano :: ScriptHash -> CurrencySymbol
+fromCardano = encodeCbor >>> unwrap >>> CurrencySymbol

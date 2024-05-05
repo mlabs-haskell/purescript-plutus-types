@@ -21,12 +21,15 @@ import Cardano.Plutus.DataSchema
   , Z
   )
 import Cardano.Plutus.Types.Credential (Credential)
+import Cardano.Plutus.Types.Credential as Credential
 import Cardano.ToData (class ToData, genericToData)
+import Cardano.Types as Cardano
 import Cardano.Types.Internal.Helpers (encodeTagged')
 import Data.Argonaut.Encode.Encoders (encodeString)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(Left))
 import Data.Generic.Rep (class Generic)
+import Data.Maybe (Maybe(Just, Nothing))
 import Data.Show.Generic (genericShow)
 import Data.Tuple.Nested (type (/\), (/\))
 import JS.BigInt (BigInt)
@@ -87,3 +90,10 @@ instance DecodeAeson StakingCredential where
     toStakingPtr
       :: (BigInt /\ BigInt /\ BigInt) -> StakingCredential
     toStakingPtr (slot /\ txIx /\ certIx) = StakingPtr { slot, txIx, certIx }
+
+toCardano :: StakingCredential -> Maybe Cardano.Credential
+toCardano (StakingHash credential) = Just $ Credential.toCardano credential
+toCardano (StakingPtr _) = Nothing
+
+fromCardano :: Cardano.Credential -> StakingCredential
+fromCardano credential = StakingHash $ Credential.fromCardano credential

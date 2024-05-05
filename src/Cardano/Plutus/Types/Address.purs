@@ -23,14 +23,26 @@ import Cardano.Plutus.DataSchema
 import Cardano.Plutus.Types.Credential
   ( Credential(PubKeyCredential, ScriptCredential)
   )
+import Cardano.Plutus.Types.Credential as Credential
 import Cardano.Plutus.Types.PaymentPubKeyHash
   ( PaymentPubKeyHash(PaymentPubKeyHash)
   )
 import Cardano.Plutus.Types.StakingCredential
   ( StakingCredential(StakingHash)
   )
+import Cardano.Plutus.Types.StakingCredential as StakingCredential
 import Cardano.Plutus.Types.ValidatorHash (ValidatorHash)
 import Cardano.ToData (class ToData, genericToData)
+import Cardano.Types.Address
+  ( Address
+      ( BaseAddress
+      , EnterpriseAddress
+      , ByronAddress
+      , PointerAddress
+      , RewardAddress
+      )
+  ) as Cardano
+import Cardano.Types.NetworkId (NetworkId) as Cardano
 import Data.Either (Either(Left))
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(Just, Nothing))
@@ -113,3 +125,34 @@ getValidatorHash addr =
 -- | https://github.com/IntersectMBO/plutus/blob/eceae8831b8186655535dee587486dbd3fd037f4/plutus-ledger-api/src/PlutusLedgerApi/V1/Address.hs#L74
 getStakingCredential :: Address -> Maybe StakingCredential
 getStakingCredential = _.addressStakingCredential <<< unwrap
+
+toCardano :: Cardano.NetworkId -> Address -> Maybe Cardano.Address
+toCardano networkId (Address { addressCredential, addressStakingCredential }) =
+  case addressStakingCredential of
+    Nothing -> Just $
+      Cardano.EnterpriseAddress
+        { networkId
+        , paymentCredential: wrap $ Credential.toCardano addressCredential
+        }
+    Just stakeCredential
+      | Just cardanoCredential <- StakingCredential.toCardano stakeCredential ->
+          Just $
+            Cardano.BaseAddress
+              { networkId
+              , paymentCredential: wrap $ Credential.toCardano addressCredential
+              , stakeCredential: wrap $ cardanoCredential
+              }
+      | otherwise -> Nothing
+
+fromCardano :: Cardano.Address -> Maybe Address
+fromCardano (Cardano.BaseAddress { paymentCredential, stakeCredential }) = Just $ Address
+  { addressCredential: Credential.fromCardano $ unwrap paymentCredential
+  , addressStakingCredential: Just $ StakingCredential.fromCardano $ unwrap stakeCredential
+  }
+fromCardano (Cardano.EnterpriseAddress { paymentCredential }) = Just $ Address
+  { addressCredential: Credential.fromCardano $ unwrap paymentCredential
+  , addressStakingCredential: Nothing
+  }
+fromCardano (Cardano.PointerAddress _) = Nothing
+fromCardano (Cardano.RewardAddress _) = Nothing
+fromCardano (Cardano.ByronAddress _) = Nothing

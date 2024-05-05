@@ -16,7 +16,6 @@ module Cardano.Plutus.Types.Value
   , negation
   , scale
   , singleton
-  , singleton'
   , split
   , symbols
   , unionWith
@@ -24,6 +23,8 @@ module Cardano.Plutus.Types.Value
   , valueToCoin
   , valueToCoin'
   , pprintValue
+  , toCardano
+  , fromCardano
   ) where
 
 import Prelude hiding (eq)
@@ -41,9 +42,9 @@ import Cardano.FromData (class FromData)
 import Cardano.Plutus.Types.CurrencySymbol
   ( CurrencySymbol
   , adaSymbol
-  , mkCurrencySymbol
   , pprintCurrencySymbol
   )
+import Cardano.Plutus.Types.CurrencySymbol as CurrencySymbol
 import Cardano.Plutus.Types.Map (Map(Map)) as Plutus
 import Cardano.Plutus.Types.Map
   ( keys
@@ -52,23 +53,31 @@ import Cardano.Plutus.Types.Map
   , singleton
   , union
   ) as Plutus.Map
+import Cardano.Plutus.Types.Map as PlutusMap
 import Cardano.Plutus.Types.TokenName (TokenName, adaToken)
+import Cardano.Plutus.Types.TokenName as TokenName
 import Cardano.ToData (class ToData)
-import Control.Apply (lift3)
+import Cardano.Types.Asset (Asset(Asset, AdaAsset))
+import Cardano.Types.AssetName (unAssetName)
+import Cardano.Types.BigNum as BigNum
+import Cardano.Types.Value as Cardano
+import Cardano.Types.Value as Value
 import Data.Array (concatMap, filter, replicate)
-import Data.ByteArray (ByteArray, byteArrayToHex)
+import Data.Array as Array
+import Data.ByteArray (byteArrayToHex)
 import Data.Either (Either(Left))
 import Data.Foldable (all, fold)
 import Data.Generic.Rep (class Generic)
 import Data.Lattice (class JoinSemilattice, class MeetSemilattice)
 import Data.Log.Tag (TagSet, tag)
 import Data.Log.Tag as TagSet
-import Data.Maybe (Maybe(Nothing), fromMaybe)
-import Data.Newtype (class Newtype)
+import Data.Map as Map
+import Data.Maybe (Maybe, fromMaybe)
+import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Ord (abs)
 import Data.Show.Generic (genericShow)
 import Data.These (These(Both, That, This), these)
-import Data.Traversable (sequence)
+import Data.Traversable (for, sequence)
 import Data.Tuple (fst)
 import Data.Tuple.Nested (type (/\), (/\))
 import JS.BigInt (BigInt)
@@ -179,16 +188,6 @@ getValue (Value mp) = mp
 singleton :: CurrencySymbol -> TokenName -> BigInt -> Value
 singleton cs tn = Value <<< Plutus.Map.singleton cs <<< Plutus.Map.singleton tn
 
--- | Creates a singleton value given two byte arrays for currency symbol and
--- | token name respectively. Returns `Nothing` when trying to create a `Value`
--- | with the Ada currency symbol and a non-empty token name.
-singleton' :: ByteArray -> ByteArray -> BigInt -> Maybe Value
-singleton' cs tn amount
-  | cs == mempty && tn /= mempty = Nothing
-  | otherwise =
-      lift3 singleton (mkCurrencySymbol cs) (pure tn)
-        (pure amount)
-
 -- https://playground.plutus.iohkdev.io/doc/haddock/plutus-ledger-api/html/src/Plutus.V1.Ledger.Value.html#valueOf
 -- | Gets the quantity of the given currency in the `Value`.
 valueOf :: Value -> CurrencySymbol -> TokenName -> BigInt
@@ -248,9 +247,10 @@ unionWith f lhs =
 -- | Converts a value to a simple list, keeping only the non-zero amounts.
 flattenValue :: Value -> Array (CurrencySymbol /\ TokenName /\ BigInt)
 flattenValue (Value (Plutus.Map arr)) =
-  flip concatMap arr \(cs /\ (Plutus.Map tokens)) ->
-    tokens <#> \(tn /\ value) ->
-      cs /\ tn /\ value
+  Array.filter (\(_ /\ _ /\ amount) -> amount /= zero) $
+    flip concatMap arr \(cs /\ (Plutus.Map tokens)) ->
+      tokens <#> \(tn /\ value) ->
+        cs /\ tn /\ value
 
 -- | Converts a value to a simple list, keeping only the non-Ada assets
 -- | with non-zero amounts.
@@ -308,4 +308,25 @@ pprintValue (Value (Plutus.Map arr)) = TagSet.fromArray $
     TagSet.tagSetTag (pprintCurrencySymbol currency)
       $ TagSet.fromArray
       $ assets <#> \(tokenName /\ amount) ->
-          byteArrayToHex tokenName `tag` BigInt.toString amount
+          byteArrayToHex (unAssetName $ unwrap tokenName) `tag` BigInt.toString amount
+
+toCardano :: Value -> Maybe Cardano.Value
+toCardano (Value mp) = do
+  psMap <- PlutusMap.toCardano mp
+  arrs <- Array.concat <$> for (Map.toUnfoldable psMap :: Array _) \(currencySymbol /\ assets) -> do
+    psAssets <- PlutusMap.toCardano assets
+    for (Map.toUnfoldable psAssets :: Array _) \(tokenName /\ quantity) -> do
+      amount <- BigNum.fromBigInt quantity
+      if currencySymbol == CurrencySymbol.adaSymbol then pure (AdaAsset /\ amount)
+      else do
+        cCurrencySymbol <- CurrencySymbol.toCardano currencySymbol
+        pure $ Asset cCurrencySymbol (unwrap tokenName) /\ amount
+  Value.unflatten arrs
+
+fromCardano :: Cardano.Value -> Value
+fromCardano cv = fold $
+  Value.flatten cv <#> \(asset /\ amount) ->
+    case asset of
+      AdaAsset -> singleton CurrencySymbol.adaSymbol TokenName.adaToken $ BigNum.toBigInt amount
+      Asset scriptHash assetName ->
+        singleton (CurrencySymbol.fromCardano scriptHash) (wrap assetName) $ BigNum.toBigInt amount

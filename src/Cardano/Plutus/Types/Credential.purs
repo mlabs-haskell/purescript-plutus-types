@@ -22,11 +22,13 @@ import Cardano.Plutus.DataSchema
 import Cardano.Plutus.Types.PubKeyHash (PubKeyHash)
 import Cardano.Plutus.Types.ValidatorHash (ValidatorHash)
 import Cardano.ToData (class ToData, genericToData)
+import Cardano.Types.Credential as Cardano
 import Cardano.Types.Internal.Helpers (encodeTagged')
 import Data.Argonaut.Encode.Encoders (encodeString)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(Left))
 import Data.Generic.Rep (class Generic)
+import Data.Newtype (unwrap, wrap)
 import Data.Show.Generic (genericShow)
 
 --------------------------------------------------------------------------------
@@ -76,3 +78,15 @@ instance ToData Credential where
 
 instance FromData Credential where
   fromData = genericFromData
+
+toCardano :: Credential -> Cardano.Credential
+toCardano (PubKeyCredential pubKeyHash) =
+  Cardano.PubKeyHashCredential (unwrap pubKeyHash)
+toCardano (ScriptCredential validatorHash) =
+  Cardano.ScriptHashCredential (unwrap validatorHash)
+
+fromCardano :: Cardano.Credential -> Credential
+fromCardano (Cardano.PubKeyHashCredential pubKeyHash) =
+  PubKeyCredential $ wrap pubKeyHash
+fromCardano (Cardano.ScriptHashCredential scriptHash) =
+  ScriptCredential $ wrap scriptHash
