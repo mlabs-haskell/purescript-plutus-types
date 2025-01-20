@@ -249,6 +249,12 @@
       in {
         devShells = {
           default = pkgs.mkShell {
+            shellHook = ''
+              export NODE_PATH="${nodeModules}/lib/node_modules"
+              ln -sfn $NODE_PATH node_modules
+              export PATH="${nodeModules}/bin:$PATH"
+              export NPM_CONFIG_PACKAGE_LOCK_ONLY=true
+            '';
             buildInputs = with pkgs; [
               nixpkgs-fmt
               easy-ps.purs
