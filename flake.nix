@@ -123,25 +123,7 @@
         in
           (modules {}).shell.nodeDependencies;
 
-        nodeEnv = import ./nix/node-env.nix {
-          inherit (pkgs) stdenv lib python2 runCommand writeTextFile writeShellScript;
-          inherit pkgs nodejs;
-          libtool =
-            if pkgs.stdenv.isDarwin
-            then pkgs.cctools or pkgs.darwin.cctools
-            else null;
-        };
-        nodeModules =
-          (pkgs.callPackage ./nix/node-packages.nix {
-            inherit (pkgs) fetchurl nix-gitignore stdenv lib;
-            inherit nodeEnv;
-          })
-          .nodeDependencies
-          .override {
-            buildInputs = [pkgs.nodePackages.node-gyp-build];
-          };
-
-        # nodeModules = mkNodeModules { };
+        nodeModules = mkNodeModules {};
 
         # Compiles your Purescript project and copies the `output` directory into the
         # Nix store. Also copies the local sources to be made available later as `purs`
