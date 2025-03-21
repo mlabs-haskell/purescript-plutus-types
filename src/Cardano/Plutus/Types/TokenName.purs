@@ -15,9 +15,9 @@ import Aeson
   , encodeAeson
   , getField
   )
+import Cardano.Data.Lite (assetName_new)
 import Cardano.FromData (class FromData)
 import Cardano.FromMetadata (class FromMetadata)
-import Cardano.Serialization.Lib (assetName_new)
 import Cardano.ToData (class ToData)
 import Cardano.ToMetadata (class ToMetadata)
 import Cardano.Types.AssetName

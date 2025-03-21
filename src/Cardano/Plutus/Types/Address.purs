@@ -38,7 +38,6 @@ import Cardano.Types.Address
       ( BaseAddress
       , EnterpriseAddress
       , ByronAddress
-      , PointerAddress
       , RewardAddress
       )
   ) as Cardano
@@ -153,6 +152,5 @@ fromCardano (Cardano.EnterpriseAddress { paymentCredential }) = Just $ Address
   { addressCredential: Credential.fromCardano $ unwrap paymentCredential
   , addressStakingCredential: Nothing
   }
-fromCardano (Cardano.PointerAddress _) = Nothing
 fromCardano (Cardano.RewardAddress _) = Nothing
 fromCardano (Cardano.ByronAddress _) = Nothing
